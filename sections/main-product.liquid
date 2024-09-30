@@ -721,12 +721,12 @@
           <div class="drawer__header">
             <img
               class="drawer__header-image"
-              src="{{ product.selected_or_first_available_variant.featured_image | image_url }}"
+              src="{{ product.featured_image | image_url }}"
               width=""
               height=""
             >
             <div class="drawer__header-info">
-              <h2 class="drawer__header-product-title">{{ product.selected_or_first_available_variant.title }}</h2>
+              <h2 class="drawer__header-product-title">{{ product.title }}</h2>
               <div class="drawer__header-product-price-info">
                 <span class="drawer__header-product-price">
                   {{- product.selected_or_first_available_variant.price | money -}}
@@ -749,13 +749,20 @@
               <path d="M17.658 6.343 6.344 17.657M17.658 17.657 6.344 6.343" stroke="currentColor"></path>
             </svg>
           </div>
-          {% render 'product-variant-picker', product: product, product_form_id: product_form_id %}
-          {%- render 'buy-buttons',
-            product: product,
-            product_form_id: product_form_id,
-            section_id: section.id,
-            show_pickup_availability: true
-          -%}
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {%- when 'variant_picker' -%}
+                {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
+              {%- when 'buy_buttons' -%}
+                {%- render 'buy-buttons',
+                  block: block,
+                  product: product,
+                  product_form_id: product_form_id,
+                  section_id: section.id,
+                  show_pickup_availability: true
+                -%}
+            {% endcase %}
+          {% endfor %}
         </div>
       </div>
     </div>
