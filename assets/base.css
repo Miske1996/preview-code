@@ -1350,7 +1350,7 @@ button.shopify-payment-button__button--unbranded {
 }
 
 .button.loading > .loading__spinner .path {
-  stroke: rgb(var(--color-button-text));
+  stroke: #fff;
 }
 
 /* Button - social share */
