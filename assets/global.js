@@ -1074,7 +1074,6 @@ class VariantSelects extends HTMLElement {
       const target = this.getInputForEventTarget(event.target);
       this.currentVariant = this.getVariantData(target.id);
       this.updateSelectedSwatchValue(event);
-
       publish(PUB_SUB_EVENTS.variantChangeStart, {
         data: {
           event,
@@ -1082,6 +1081,18 @@ class VariantSelects extends HTMLElement {
           variant: this.currentVariant,
         },
       });
+      if (this.getAttribute('private-event-id')) {
+        const privateEventId = `product-card-${this.getAttribute('private-event-id')}`;
+        // Publish the event with the private ID included in the data
+        publish(PUB_SUB_EVENTS.optionValueCardSelectionChange, {
+          data: {
+            event,
+            target,
+            selectedOptionValues: this.selectedOptionValues,
+            privateEventId, // Include the private event ID in the published data
+          },
+        });
+      }
     });
   }
 
@@ -1125,9 +1136,18 @@ class VariantSelects extends HTMLElement {
   }
 
   get selectedOptionValues() {
-    return Array.from(this.querySelectorAll('select, fieldset input:checked')).map(
-      ({ dataset }) => dataset.optionValueId
-    );
+    return Array.from(this.querySelectorAll('select, fieldset input:checked'))
+      .map((element) => {
+        if (element.tagName.toLowerCase() === 'select') {
+          // If the element is a select, get the selected option's dataset
+          const selectedOption = element.selectedOptions[0];
+          return selectedOption ? selectedOption.dataset.optionValueId : undefined;
+        } else {
+          // For checked inputs, return their dataset.optionValueId directly
+          return element.dataset.optionValueId;
+        }
+      })
+      .filter(Boolean); // Filter out any undefined values
   }
 }
 

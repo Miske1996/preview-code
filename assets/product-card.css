@@ -81,7 +81,7 @@
     flex-direction: column;
     visibility: hidden;
     transition: visibility .1s ease ;
-
+    gap: 22px;
 }
 .drawer__header{
     display: flex;
