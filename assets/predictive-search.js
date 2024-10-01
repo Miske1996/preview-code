@@ -175,6 +175,7 @@ class PredictiveSearch extends SearchForm {
       this.renderSearchResults(this.cachedResults[queryKey]);
       return;
     }
+    const startSearchTime = performance.now();
 
     fetch(`${routes.predictive_search_url}?q=${encodeURIComponent(searchTerm)}&section_id=predictive-search`, {
       signal: this.abortController.signal,
@@ -197,6 +198,8 @@ class PredictiveSearch extends SearchForm {
           predictiveSearchInstance.cachedResults[queryKey] = resultsMarkup;
         });
         this.renderSearchResults(resultsMarkup);
+            const endFetchTime = performance.now();
+        console.log(`Time taken to fetch results: ${(endFetchTime - startSearchTime).toFixed(2)} ms`);
       })
       .catch((error) => {
         if (error?.code === 20) {
