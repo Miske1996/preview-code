@@ -5,7 +5,92 @@ function getFocusableElements(container) {
     )
   );
 }
+// This part should be added in the global scope or somewhere in your page initialization logic
+window.addEventListener('load', () => {
+  const startTime = localStorage.getItem('startTime');
 
+  // Ensure we have a previous start time to compare
+  if (startTime) {
+    const endTime = Date.now();
+    const totalTime = endTime - parseFloat(startTime);
+
+    // Log the time taken for the full page reload
+    console.log(`Time taken for full page reload: ${totalTime}ms`);
+
+    // Clean up localStorage for future navigations
+    localStorage.removeItem('startTime');
+  }
+});
+// Global popstate event listener
+window.addEventListener('popstate', (event) => {
+  const currentUrl = window.location.href;
+
+  // Fetch and replace the main content on back navigation
+  fetchAndRenderMainContent(currentUrl);
+});
+
+// Function to fetch product data
+async function fetchUrlData(url) {
+  const response = await fetch(url);
+  return response.text();
+}
+// Function to initialize link rendering for the whole store
+function initializeLinkRendering() {
+  // Attach click event listeners to all links in the main content
+  const body = document.querySelector('body');
+  body.addEventListener('click', (event) => {
+    const target = event.target.closest('a'); // Find the closest <a> tag
+
+    // Check if a link was clicked
+    if (target) {
+      event.preventDefault(); // Prevent the default link behavior
+
+      const startTime = Date.now();
+      const productUrl = target.href; // Get the URL from the link
+
+      // Random decision: either use AJAX rendering or reload the whole page
+      const randomNumber = Math.random();
+
+      fetchAndRenderMainContent(productUrl, startTime);
+    }
+  });
+}
+
+// Function to fetch and render main content
+async function fetchAndRenderMainContent(url, startTime) {
+  try {
+    const responseText = await fetchProductData(url);
+    const mainContent = extractMainContent(responseText);
+    document.querySelector('main').innerHTML = mainContent.innerHTML;
+
+    // Update the browser's URL without reloading the page
+    window.history.pushState({}, '', url);
+
+    // Measure the time taken for rendering after content is replaced
+    requestAnimationFrame(() => {
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      console.log(`Time taken for AJAX rendering: ${totalTime}ms`);
+    });
+  } catch (error) {
+    console.error('Error fetching main content:', error);
+  }
+}
+
+// Function to fetch product data
+async function fetchProductData(url) {
+  const response = await fetch(url);
+  return response.text();
+}
+
+// Function to extract main content
+function extractMainContent(responseText) {
+  const html = new DOMParser().parseFromString(responseText, 'text/html');
+  return html.querySelector('main');
+}
+
+// Call the initialization function
+initializeLinkRendering();
 class SectionId {
   static #separator = '__';
 

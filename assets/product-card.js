@@ -43,6 +43,10 @@ if (!customElements.get('product-card')) {
         return html.querySelector(`#drawer-product-${this.product.data.id}`);
       }
 
+      extractMainContent(responseText) {
+        const html = new DOMParser().parseFromString(responseText, 'text/html');
+        return html.querySelector('main');
+      }
       appendTemplateContent(template) {
         document.body.appendChild(template.content);
       }
